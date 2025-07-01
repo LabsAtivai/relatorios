@@ -100,24 +100,26 @@ async function getCampaignData(sheets, email) {
   }
 }
 
-// Função para consultar progresso da campanha
 async function getCampaignProgress(accessToken, campaignId) {
   try {
     const response = await axios.get(
       `https://api.snov.io/v2/campaigns/${campaignId}/progress`,
       {
-        params: {
-          access_token: accessToken,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
       }
     );
-    return response.data;
+      console.log(response.data)
+    return response.data
   } catch (error) {
-    console.error("Erro ao buscar progresso da campanha:", error.response?.data || error.message);
+    console.error(
+      "Erro ao buscar progresso da campanha:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 }
-
 // Função para adicionar campaignName, campaignID, unfinished e clientEmail às colunas A, B, C e D
 async function appendToGoogleSheets(sheets, client, campaign, unfinished) {
   try {
@@ -171,11 +173,11 @@ async function main() {
       const usersHasError = [];
   
       const batchSize = 59;
-  
+        
       for (let i = 0; i < clients.length; i += batchSize) {
         const batch = clients.slice(i, i + batchSize);
         console.log(`Processando lote de ${batch.length} clientes...`);
-  
+        //jogar para o kafka, 
         for (const client of batch) {
           try {
             const accessToken = await getAccessToken(client.clientId, client.clientSecret);
@@ -198,7 +200,7 @@ async function main() {
           } catch (error) {
             usersHasError.push(client);
             console.error("Erro na execução para cliente:", client.email, error);
-          }
+          }//fim da fila, erro = fim da fila
         }
   
         if (i + batchSize < clients.length) {
